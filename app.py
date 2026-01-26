@@ -11,7 +11,7 @@ st.title("📈 樂活五線譜自動生成")
 
 # --- 側邊欄：使用者輸入區 ---
 st.sidebar.header("查詢設定")
-stock_id = st.sidebar.text_input("股票代號 (台股請加 .TW)", value="2884.TW")
+stock_id = st.sidebar.text_input("股票代號 (輸入股票代號)", value="2884.TW")
 lookback_days = st.sidebar.slider("觀察天數", min_value=250, max_value=2000, value=1000)
 
 if st.sidebar.button("開始計算"):
