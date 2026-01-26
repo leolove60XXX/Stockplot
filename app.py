@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 
 # 網頁配置
 st.set_page_config(page_title="樂活五線譜線上查詢器", layout="wide")
-st.title("📈 樂活五線譜自動生成系統")
+st.title("📈 樂活五線譜自動生成")
 
 # --- 側邊欄：使用者輸入區 ---
 st.sidebar.header("查詢設定")
@@ -16,10 +16,16 @@ lookback_days = st.sidebar.slider("觀察天數", min_value=250, max_value=2000,
 
 if st.sidebar.button("開始計算"):
     with st.spinner('計算中...'):
-        # 1. 抓取資料 (完全沿用您成功的邏輯)
-        end_date = datetime.now()
-        start_date = end_date - timedelta(days=lookback_days)
-        df = yf.download(stock_id, start=start_date, end=end_date)
+        # 1. 自動偵測後綴邏輯
+        base_id = raw_stock_id.strip().upper().replace(".TW", "").replace(".TWO", "")
+        
+        # 嘗試順序：.TW -> .TWO
+        df = yf.download(f"{base_id}.TW", start=start_date, end=end_date, progress=False)
+        final_id = f"{base_id}.TW"
+        
+        if df.empty:
+            df = yf.download(f"{base_id}.TWO", start=start_date, end=end_date, progress=False)
+            final_id = f"{base_id}.TWO"
 
         if df.empty:
             st.error("找不到資料")
