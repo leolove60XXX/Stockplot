@@ -17,7 +17,7 @@ lookback_days = st.sidebar.slider("觀察天數", min_value=250, max_value=2000,
 if st.sidebar.button("開始計算"):
     with st.spinner('計算中...'):
         # 1. 自動偵測後綴邏輯
-        base_id = raw_stock_id.strip().upper().replace(".TW", "").replace(".TWO", "")
+        base_id = stock_id.strip().upper().replace(".TW", "").replace(".TWO", "")
         
         # 嘗試順序：.TW -> .TWO
         df = yf.download(f"{base_id}.TW", start=start_date, end=end_date, progress=False)
