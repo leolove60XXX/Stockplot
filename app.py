@@ -20,6 +20,9 @@ if st.sidebar.button("開始計算"):
         base_id = stock_id.strip().upper().replace(".TW", "").replace(".TWO", "")
         
         # 嘗試順序：.TW -> .TWO
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=lookback_days)
+        
         df = yf.download(f"{base_id}.TW", start=start_date, end=end_date, progress=False)
         final_id = f"{base_id}.TW"
         
