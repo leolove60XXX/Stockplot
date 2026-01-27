@@ -17,7 +17,19 @@ st.title("📈 樂活五線譜自動生成")
 # --- 2. 側邊欄：使用者輸入區 ---
 st.sidebar.header("查詢設定")
 stock_id = st.sidebar.text_input("股票代號 (輸入數字即可)", value="2884")
-lookback_days = st.sidebar.slider("觀察天數", min_value=250, max_value=2000, value=1000)
+# 新增：選擇計算模式
+mode = st.sidebar.radio("時間設定模式", ["固定天數", "自定義起始日"])
+
+if mode == "固定天數":
+    lookback_days = st.sidebar.slider("觀察天數", min_value=250, max_value=2000, value=1000)
+    end_date = datetime.now()
+    start_date = end_date - timedelta(days=lookback_days)
+else:
+    # 自定義日期模式
+    start_date = st.sidebar.date_input("起始日期", value=datetime.now() - timedelta(days=1000))
+    end_date = st.sidebar.date_input("結束日期", value=datetime.now())
+    # 算出實際天數，供後續繪圖標題使用
+    lookback_days = (end_date.date() - start_date).days if isinstance(end_date, datetime) else (end_date - start_date).days
 
 # 手機優化：讓按鈕在側邊欄也能撐滿寬度
 submit_btn = st.sidebar.button("開始計算", use_container_width=True)
