@@ -16,7 +16,7 @@ st.title("📈 樂活五線譜自動生成")
 
 # --- 2. 側邊欄：使用者輸入區 ---
 st.sidebar.header("查詢設定")
-stock_id = st.sidebar.text_input("股票代號 (輸入數字即可)", value="2884")
+stock_id = st.sidebar.text_input("股票代號 (台股:2330 / 美股:AAPL)", value="2330")
 
 # 直接使用日期選擇器
 start_date = st.sidebar.date_input("起始日期", value=datetime.now() - timedelta(days=1000))
@@ -32,9 +32,14 @@ if submit_btn:
     else:
         with st.spinner('數據計算中...'):
             # A. 處理股票代號
-            base_id = stock_id.strip().upper().replace(".TW", "").replace(".TWO", "")
+            base_id = stock_id.strip().upper()
             
-            # B. 嘗試抓取資料 (.TW 上市 或 .TWO 上櫃)
+            # B. 嘗試抓取資料 
+            # 1. 先嘗試原代號 (美股優先)
+            df = yf.download(base_id, start=start_date, end=end_date, progress=False)
+            final_id = base_id
+            
+            if df.empty:
             df = yf.download(f"{base_id}.TW", start=start_date, end=end_date, progress=False)
             final_id = f"{base_id}.TW"
             
