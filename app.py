@@ -17,8 +17,6 @@ st.set_page_config(
     initial_sidebar_state="collapsed" if st.session_state.submitted else "expanded"
 )
 
-st.title("📈 樂活五線譜自動生成")
-
 # 2. 手機版標題優化：使用自定義 HTML 縮小字體防止換行
 st.markdown(
     """
