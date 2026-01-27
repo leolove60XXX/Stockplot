@@ -90,7 +90,16 @@ if st.session_state.submitted:
                 xaxis_title=None, yaxis_title='價格',
                 hovermode="x unified", template="plotly_white", height=450,
                 margin=dict(l=5, r=5, t=30, b=5),
-                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1, font=dict(size=9))
+                legend=dict(
+                    orientation="h",      # 橫向排列
+                    yanchor="bottom",
+                    y=1.02,               # 置於圖表上方
+                    xanchor="center",     # 關鍵：將圖例的錨點設為中間
+                    x=0.5,                # 關鍵：將中間點放在圖表 50% 的位置
+                    font=dict(size=10),
+                    traceorder="normal",  # 確保順序依照 names 定義
+                    itemsizing="constant" # 讓圖例標誌大小一致
+                    ),
             )
 
             st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
