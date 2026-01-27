@@ -83,7 +83,7 @@ if st.session_state.submitted:
             for m, name, color in zip(multipliers, names, colors):
                 fig.add_trace(go.Scatter(
                     x=df['Date'], y=middle_line + m * std_dev, 
-                    name=name, line=dict(color=color, width=1, dash='dash' if m != 0 else 'solid')
+                    name=name, line=dict(color=color, width=1.2, dash='dash' if m != 0 else 'solid')
                 ))
 
             fig.update_layout(
