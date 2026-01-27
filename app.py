@@ -20,6 +20,11 @@ st.set_page_config(
 st.markdown(
     """
     <style>
+    /* 確保輸入框文字不會因為太擠而看不見 */
+    .stDateInput input {
+        width: 100% !important;
+        font-size: 16px !important;
+    }
     .main-title { font-size: 22px !important; font-weight: bold; margin-bottom: 5px; }
     </style>
     <div class="main-title">📈 樂活五線譜自動生成</div>
