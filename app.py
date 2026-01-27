@@ -88,7 +88,7 @@ if submit_btn:
 
                 # 圖表佈局設定
                 fig.update_layout(
-                    title=f'{final_id} 分析結果 ({start_date} ~ {end_date})',
+                    title=f'{final_id} 分析',
                     xaxis_title=None, 
                     yaxis_title='股價',
                     hovermode="x unified", 
