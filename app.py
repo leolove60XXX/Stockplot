@@ -40,8 +40,8 @@ if submit_btn:
             final_id = base_id
             
             if df.empty:
-            df = yf.download(f"{base_id}.TW", start=start_date, end=end_date, progress=False)
-            final_id = f"{base_id}.TW"
+                df = yf.download(f"{base_id}.TW", start=start_date, end=end_date, progress=False)
+                final_id = f"{base_id}.TW"
             
             if df.empty:
                 df = yf.download(f"{base_id}.TWO", start=start_date, end=end_date, progress=False)
