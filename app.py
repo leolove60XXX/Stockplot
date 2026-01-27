@@ -6,13 +6,26 @@ import plotly.graph_objects as go
 from datetime import datetime, timedelta
 
 # 1. 網頁配置：手機版預設收起選單，使用寬版佈局
+
+# 1. 網頁配置：利用 session_state 判斷是否已點擊計算，若已點擊則收起側邊欄
+if "submitted" not in st.session_state:
+    st.session_state.submitted = False
+    
 st.set_page_config(
     page_title="樂活五線譜線上查詢器", 
     layout="wide",
-    initial_sidebar_state="collapsed" 
+    initial_sidebar_state="collapsed" if st.session_state.submitted else "expanded"
 )
 
 st.title("📈 樂活五線譜自動生成")
+
+# 2. 手機版標題優化：使用自定義 HTML 縮小字體防止換行
+st.markdown(
+    """
+    <h1 style='font-size: 24px; text-align: left;'>📈 樂活五線譜自動生成</h1>
+    """, 
+    unsafe_allow_html=True
+)
 
 # --- 2. 側邊欄：使用者輸入區 ---
 st.sidebar.header("查詢設定")
@@ -26,6 +39,9 @@ end_date = st.sidebar.date_input("結束日期", value=datetime.now())
 submit_btn = st.sidebar.button("開始計算", use_container_width=True)
 
 if submit_btn:
+    st.session_state.submitted = True
+    # 執行完畢後會觸發 rerun，屆時 initial_sidebar_state 會變成 collapsed
+    
     # 確保結束日期不早於起始日期
     if start_date >= end_date:
         st.error("❌ 錯誤：起始日期必須早於結束日期")
