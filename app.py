@@ -60,7 +60,7 @@ if st.session_state.submitted:
             st.session_state.submitted = False
         else:
             # 顯示目前分析代號 (手機版重要提示)
-            st.caption(f"📊 目前分析標的: {final_id}")
+            st.success(f"✅ 已完成 {final_id} 的數據分析")
             
             # 計算區
             df = df.reset_index()
