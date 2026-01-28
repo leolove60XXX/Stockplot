@@ -19,29 +19,30 @@ st.set_page_config(
 # --- 2. 標題與樣式優化 ---
 st.markdown(
     """
-    <style>
-    /* 1. 調整側邊欄寬度，給日曆更多空間 */
-    [data-testid="stSidebar"] {
-        min-width: 320px !important;
+   <style>
+    /* 1. 強制讓側邊欄與其內部容器允許溢出顯示 (不裁切彈窗) */
+    [data-testid="stSidebar"], 
+    [data-testid="stSidebarUserContent"],
+    [data-testid="stVerticalBlock"] {
+        overflow: visible !important;
     }
 
-    /* 2. 修正日曆彈窗被側邊欄頂部遮擋的問題 */
+    /* 2. 增加側邊欄頂部間距，避免年份彈出時頂到瀏覽器邊緣 */
     [data-testid="stSidebarUserContent"] {
-        padding-top: 2rem !important;
+        padding-top: 50px !important;
     }
 
-    /* 3. 標題樣式 */
-    .main-title { 
-        font-size: 22px !important; 
-        font-weight: bold; 
-        margin-bottom: 5px; 
+    /* 3. 調寬側邊欄，確保日曆元件有足夠寬度 */
+    [data-testid="stSidebar"] {
+        min-width: 350px !important;
     }
-    
-    /* 4. 強制日曆彈窗顯示在最上層，避免被容器裁切 */
+
+    /* 4. 確保日曆彈窗 (Popover) 的 z-index 極高 */
     div[data-baseweb="popover"] {
         z-index: 999999 !important;
     }
 
+    .main-title { font-size: 22px !important; font-weight: bold; margin-bottom: 5px; }
     </style>
     <div class="main-title">📈 樂活五線譜自動生成</div>
     """, 
