@@ -29,8 +29,14 @@ st.markdown(
 
     /* 2. 增加側邊欄頂部間距，避免年份彈出時頂到瀏覽器邊緣 */
     [data-testid="stSidebarUserContent"] {
-        padding-top: 50px !important;
+        padding-top: 53px !important;
     }
+
+    /* 2A. 手機版特別修正 (針對 768px 以下螢幕) */
+    @media (max-width: 768px) {
+        [data-testid="stSidebarUserContent"] {
+            padding-top: 80px !important; /* 手機版多推一點，避免被手機狀態列遮住 */
+        }
 
     /* 3. 調寬側邊欄，確保日曆元件有足夠寬度 */
     [data-testid="stSidebar"] {
