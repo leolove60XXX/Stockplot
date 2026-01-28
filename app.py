@@ -20,7 +20,28 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    .main-title { font-size: 22px !important; font-weight: bold; margin-bottom: 5px; }
+    /* 1. 調整側邊欄寬度，給日曆更多空間 */
+    [data-testid="stSidebar"] {
+        min-width: 320px !important;
+    }
+
+    /* 2. 修正日曆彈窗被側邊欄頂部遮擋的問題 */
+    [data-testid="stSidebarUserContent"] {
+        padding-top: 2rem !important;
+    }
+
+    /* 3. 標題樣式 */
+    .main-title { 
+        font-size: 22px !important; 
+        font-weight: bold; 
+        margin-bottom: 5px; 
+    }
+    
+    /* 4. 強制日曆彈窗顯示在最上層，避免被容器裁切 */
+    div[data-baseweb="popover"] {
+        z-index: 999999 !important;
+    }
+
     </style>
     <div class="main-title">📈 樂活五線譜自動生成</div>
     """, 
