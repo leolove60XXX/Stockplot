@@ -20,6 +20,23 @@ st.set_page_config(
 st.markdown(
     """
     <style>
+    /* 1. 強制讓彈出的日曆視窗顯示在最上層，不被側邊欄遮擋 */
+    div[data-baseweb="popover"] {
+        z-index: 9999 !important;
+    }
+    
+    /* 2. 修正日曆內部高度，確保年份選擇列不會被切掉 */
+    div[data-baseweb="calendar"] {
+        max-height: none !important;
+        padding-top: 5px !important;
+    }
+
+    /* 3. 確保側邊欄容許內容溢出顯示（這點最關鍵） */
+    [data-testid="stSidebar"] {
+        overflow: visible !important;
+    }
+    
+    <style>
     .main-title { font-size: 22px !important; font-weight: bold; margin-bottom: 5px; }
     </style>
     <div class="main-title">📈 樂活五線譜自動生成</div>
