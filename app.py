@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 import requests
+import io
 from datetime import datetime, timedelta
 
 # --- 1. 狀態初始化與配置 ---
@@ -124,8 +125,8 @@ if st.session_state.submitted:
             def get_tw_stock_name(base_id, final_id):
                 """
                 優先從 CSV 資料庫找中文名稱，找不到則用 yfinance 備援
-                """
-                clean_no = stock_no.split('.')[0].strip()
+                ""
+                clean_no = base_id.split('.')[0].strip()
                 
                 # 1. 從全台股 CSV 資料庫查找
                 tw_mapping = load_full_tw_stock_mapping()
