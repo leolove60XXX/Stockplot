@@ -3,6 +3,7 @@ import yfinance as yf
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
+import requests
 from datetime import datetime, timedelta
 
 # --- 1. 狀態初始化與配置 ---
@@ -88,35 +89,31 @@ if st.session_state.submitted:
             st.error(f"❌ 找不到股票代號 '{base_id}'，請重新設定。")
             st.session_state.submitted = False
         else:
-
-            # --- C. 獲取中文名稱邏輯 ---
-            def get_chinese_name(symbol, b_id):
-                # 這裡可以手動建立常用清單，確保 100% 正確
-                common_stocks = {
-                    "2330": "台積電", "2317": "鴻海", "2454": "聯發科", 
-                    "0050": "元大台灣50", "0056": "元大高股息", "2881": "富邦金"
-                }
-                if b_id in common_stocks:
-                    return common_stocks[b_id]
-                
-# 2. 嘗試從 yfinance 抓取
+            # --- C. 精準抓取證交所中文名稱 ---
+            @st.cache_data(ttl=86400)
+            def get_tw_stock_name(stock_no):
                 try:
-                    t = yf.Ticker(symbol)
-                    # 依次嘗試多個可能的欄位
-                    name = t.info.get('shortName') or t.info.get('longName') or t.info.get('name')
+                    # 呼叫證交所官方查詢 API
+                    url = f"https://www.twse.com.tw/zh/api/codeQuery?query={stock_no}"
+                    response = requests.get(url, timeout=5)
+                    data = response.json()
                     
-                    # 如果抓到的是 None 或空字串，嘗試從 fast_info 抓
-                    if not name:
-                        name = t.fast_info.get('commonName')
-                    
-                    return name if name else ""
+                    # 回傳格式通常是 ["2330\t台積電"]
+                    if data and "suggestions" in data and len(data["suggestions"]) > 0:
+                        raw_info = data["suggestions"][0]
+                        # 拆解代號與名稱
+                        parts = raw_info.split('\t')
+                        if len(parts) > 1:
+                            return parts[1]
+                    return ""
                 except:
                     return ""
 
-            comp_name = get_chinese_name(final_id, base_id)
-                
-            # 顯示目前分析標的 (格式：2330 台積電)
-            st.markdown(f"### 📊 目前分析標的: {base_id} {comp_name}")
+            # 取得名稱 (針對台股代號進行查詢)
+            comp_name = get_tw_stock_name(base_id)
+
+            # 顯示標題
+            st.markdown(f"### 📊 目前分析標的: {base_id} <span style='color:#1E90FF'>{comp_name}</span>", unsafe_allow_html=True)
             
             # --- C. 核心計算區 ---
             df = df.reset_index()
