@@ -93,6 +93,7 @@ if st.session_state.submitted:
             # --- C. 精準抓取證交所中文名稱 (修正版) ---
             @st.cache_data(ttl=86400) # 每天自動更新一次
             def load_full_tw_stock_mapping():
+                clean_id = stock_id.split('.')[0].strip()
                 """
                 從 MOPS 下載上市(L)、上櫃(O)、興櫃(R)的所有公司基本資料 CSV
                 並建立 {代號: 簡稱} 的對照表
@@ -102,27 +103,27 @@ if st.session_state.submitted:
                     "https://mopsfin.twse.com.tw/opendata/t187ap03_O.csv", # 上櫃
                     "https://mopsfin.twse.com.tw/opendata/t187ap03_R.csv"  # 興櫃
                 ]
-                mapping = {}
                 
                 for url in urls:
-                        try:
-                            response = requests.get(url, headers=headers, timeout=10)
-                            if response.status_code == 200:
-                                # 關鍵修正：處理可能的 BOM 與編碼，並強制移除雙引號
-                                content = response.text.replace('"', '') 
-                                df = pd.read_csv(io.StringIO(content))
-                                
-                                # 清洗標頭與內容
-                                df.columns = [c.strip() for c in df.columns]
-                                if '公司代號' in df.columns and '公司簡稱' in df.columns:
-                                    # 建立字典映射，確保代號是純數字字串
-                                    temp_dict = dict(zip(df['公司代號'].astype(str).str.strip(), df['公司簡稱'].astype(str).str.strip()))
-                                    mapping.update(temp_dict)
-                        except Exception as e:
-                            print(f"無法載入 {url}: {e}")
-                            continue
+                    try:
+                        resp = requests.get(url, headers=headers, timeout=10)
+                        resp.encoding = 'utf-8' # 強制設定編碼防止亂碼
+                        df = pd.read_csv(io.StringIO(resp.text))
                         
-                return mapping
+                        # 清理標題：去空格與引號
+                        df.columns = [str(c).strip().replace('"', '') for c in df.columns]
+                        
+                        if '公司代號' in df.columns and '公司簡稱' in df.columns:
+                            # 代號欄位清理：確保是字串格式且無雜質
+                            df['公司代號'] = df['公司代號'].astype(str).str.strip().str.replace('"', '')
+                            match = df[df['公司代號'] == clean_id]
+                            
+                            if not match.empty:
+                                return match['公司簡稱'].values[0].strip().replace('"', '')
+                    except:
+                        continue # 若某個網址失敗，嘗試下一個
+                        
+                return f"股票 {clean_id}" # 若都找不到，回傳代號作為備案
             
             def get_tw_stock_name(base_id, final_id):
                 """
