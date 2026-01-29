@@ -93,31 +93,31 @@ if st.session_state.submitted:
             @st.cache_data(ttl=86400)
             def get_tw_stock_name(stock_no):
                 try:
-                # 加入 Headers 模擬瀏覽器，防止被證交所阻擋
-                headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-                }
-                url = f"https://www.twse.com.tw/zh/api/codeQuery?query={stock_no}"
+                    # 加入 Headers 模擬瀏覽器，防止被證交所阻擋
+                    headers = {
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+                    }
+                    url = f"https://www.twse.com.tw/zh/api/codeQuery?query={stock_no}"
         
-                # 增加 timeout 防止網頁卡死
-                response = requests.get(url, headers=headers, timeout=5)
+                    # 增加 timeout 防止網頁卡死
+                    response = requests.get(url, headers=headers, timeout=5)
         
-                if response.status_code == 200:
-                    data = response.json()
-                    # 偵錯用：如果你在測試環境，可以打開下面這行看 API 回傳什麼
-                    # st.write(data) 
+                    if response.status_code == 200:
+                        data = response.json()
+                        # 偵錯用：如果你在測試環境，可以打開下面這行看 API 回傳什麼
+                        # st.write(data) 
             
-                    if data and "suggestions" in data and len(data["suggestions"]) > 0:
-                        # 證交所 API 回傳範例: ["2330\t台積電"]
-                        # 我們找尋第一個包含該代號的正確項目
-                        for item in data["suggestions"]:
-                            if "\t" in item:
-                                parts = item.split('\t')
-                                #確保代號完全對應 (避免 2330 抓到 23301 認購權證)
-                                if parts[0] == stock_no:
-                                    return parts[1]
-                return ""
-    except Exception as e:
+                        if data and "suggestions" in data and len(data["suggestions"]) > 0:
+                            # 證交所 API 回傳範例: ["2330\t台積電"]
+                            # 我們找尋第一個包含該代號的正確項目
+                            for item in data["suggestions"]:
+                                if "\t" in item:
+                                    parts = item.split('\t')
+                                    #確保代號完全對應 (避免 2330 抓到 23301 認購權證)
+                                    if parts[0] == stock_no:
+                                        return parts[1]
+                    return ""
+        except Exception as e:
         # 發生錯誤時顯示在後台或回傳空白
         print(f"抓取名稱出錯: {e}")
         return ""
