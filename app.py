@@ -113,7 +113,7 @@ if st.session_state.submitted:
                 except:
                     return ""
 
-            comp_name = get_robust_name(final_id, base_id)
+            comp_name = get_chinese_name(final_id, base_id)
                 
             # 顯示目前分析標的 (格式：2330 台積電)
             st.markdown(f"### 📊 目前分析標的: {base_id} {comp_name}")
