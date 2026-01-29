@@ -28,6 +28,36 @@ st.markdown(
     [data-testid="stVerticalBlock"] {
         overflow: visible !important;
     }
+import streamlit as st
+import yfinance as yf
+import pandas as pd
+import numpy as np
+import plotly.graph_objects as go
+import requests
+import io
+from datetime import datetime, timedelta
+
+# --- 1. 狀態初始化與配置 ---
+if "submitted" not in st.session_state:
+    st.session_state.submitted = False
+
+# 根據狀態決定側邊欄開關
+st.set_page_config(
+    page_title="樂活五線譜", 
+    layout="wide",
+    initial_sidebar_state="collapsed" if st.session_state.submitted else "expanded"
+)
+
+# --- 2. 標題與樣式優化 ---
+st.markdown(
+    """
+   <style>
+    /* 1. 強制讓側邊欄與其內部容器允許溢出顯示 (不裁切彈窗) */
+    [data-testid="stSidebar"], 
+    [data-testid="stSidebarUserContent"],
+    [data-testid="stVerticalBlock"] {
+        overflow: visible !important;
+    }
 
     /* 2. 增加側邊欄頂部間距，避免年份彈出時頂到瀏覽器邊緣 */
     [data-testid="stSidebarUserContent"] {
@@ -90,10 +120,7 @@ if st.session_state.submitted:
             st.error(f"❌ 找不到股票代號 '{base_id}'，請重新設定。")
             st.session_state.submitted = False
         else:
-            # --- 1. 設定全域變數 ---
-            headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"}
-            
-            # --- 2. 下載並快取全台股對照表 ---
+            # --- C. 精準抓取證交所中文名稱 (修正版) ---
             @st.cache_data(ttl=86400) # 每天自動更新一次
             def load_full_tw_stock_mapping():
                 """
@@ -108,27 +135,22 @@ if st.session_state.submitted:
                 mapping = {}
                 
                 for url in urls:
-                    try:
-                        response = requests.get(url, headers=headers, timeout=10, verify=False)
-                        response.encoding = 'utf-8' # 強制編碼避免亂碼
-                        if response.status_code == 200:
-                            
-                            # 移除雙引號以確保 CSV 解析正確
-                            content = response.text.replace('"', '') 
-                            df = pd.read_csv(io.StringIO(content))
-                            
-                            # 清洗標頭與內容
-                            df.columns = [c.strip() for c in df.columns]
-                            if '公司代號' in df.columns and '公司簡稱' in df.columns:
-                                # 建立字典映射，確保代號是純數字字串
-                                temp_dict = dict(zip(
-                                    df['公司代號'].astype(str).str.strip(), 
-                                    df['公司簡稱'].astype(str).str.strip()
-                                ))
-                                mapping.update(temp_dict)
-                    except Exception as e:
-                        st.warning(f"無法從 {url} 更新股票清單: {e}")
-                        continue
+                        try:
+                            response = requests.get(url, headers=headers, timeout=10)
+                            if response.status_code == 200:
+                                # 關鍵修正：處理可能的 BOM 與編碼，並強制移除雙引號
+                                content = response.text.replace('"', '') 
+                                df = pd.read_csv(io.StringIO(content))
+                                
+                                # 清洗標頭與內容
+                                df.columns = [c.strip() for c in df.columns]
+                                if '公司代號' in df.columns and '公司簡稱' in df.columns:
+                                    # 建立字典映射，確保代號是純數字字串
+                                    temp_dict = dict(zip(df['公司代號'].astype(str).str.strip(), df['公司簡稱'].astype(str).str.strip()))
+                                    mapping.update(temp_dict)
+                        except Exception as e:
+                            print(f"無法載入 {url}: {e}")
+                            continue
                         
                 return mapping
             
