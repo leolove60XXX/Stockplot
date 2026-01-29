@@ -121,7 +121,7 @@ if st.session_state.submitted:
                         
                 return mapping
             
-            def get_stock_display_name(stock_no, final_id):
+            def get_tw_stock_name(stock_no, final_id):
                 """
                 優先從 CSV 資料庫找中文名稱，找不到則用 yfinance 備援
                 """
