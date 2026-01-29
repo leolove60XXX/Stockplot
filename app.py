@@ -90,28 +90,57 @@ if st.session_state.submitted:
             st.session_state.submitted = False
         else:
             # --- C. 精準抓取證交所中文名稱 (修正版) ---
-            @st.cache_data(ttl=86400)
-            def get_tw_stock_name(stock_no):
+            @st.cache_data(ttl=86400) # 每天自動更新一次
+            def load_full_tw_stock_mapping():
+                """
+                從 MOPS 下載上市(L)、上櫃(O)、興櫃(R)的所有公司基本資料 CSV
+                並建立 {代號: 簡稱} 的對照表
+                """
+                urls = [
+                    "https://mopsfin.twse.com.tw/opendata/t187ap03_L.csv", # 上市
+                    "https://mopsfin.twse.com.tw/opendata/t187ap03_O.csv", # 上櫃
+                    "https://mopsfin.twse.com.tw/opendata/t187ap03_R.csv"  # 興櫃
+                ]
+                mapping = {}
+                
+                for url in urls:
+                    try:
+                        # 使用 requests 下載並處理編碼問題 (通常為 utf-8 或 cp950)
+                        response = requests.get(url, timeout=10)
+                        if response.status_code == 200:
+                            # 讀取 CSV，自動跳過可能出錯的行
+                            df = pd.read_csv(io.StringIO(response.text))
+                            # 確保欄位存在：公司代號, 公司簡稱
+                            if '公司代號' in df.columns and '公司簡稱' in df.columns:
+                                # 建立字典映射，代號轉成字串並去除空白
+                                temp_dict = dict(zip(df['公司代號'].astype(str).str.strip(), df['公司簡稱']))
+                                mapping.update(temp_dict)
+                    except Exception as e:
+                        print(f"無法載入 {url}: {e}")
+                        continue
+                        
+                return mapping
+            
+            def get_stock_display_name(stock_no, final_id):
+                """
+                優先從 CSV 資料庫找中文名稱，找不到則用 yfinance 備援
+                """
+                clean_no = stock_no.split('.')[0].strip()
+                
+                # 1. 從全台股 CSV 資料庫查找
+                tw_mapping = load_full_tw_stock_mapping()
+                if clean_no in tw_mapping:
+                    return tw_mapping[clean_no]
+                
+                # 2. 備援：yfinance 查找 (美股或新上市股)
                 try:
-                    headers = {
-                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-                    }
-                    clean_no = stock_no.split('.')[0].strip()
-                    url = f"https://www.twse.com.tw/zh/api/codeQuery?query={stock_no}"
-                    response = requests.get(url, headers=headers, timeout=5)
-                    if response.status_code == 200:
-                        data = response.json()
-                        if data and "suggestions" in data:
-                            for item in data["suggestions"]:
-                                if "\t" in item:
-                                    parts = item.split('\t')
-                                    # 精確匹配代號
-                                    if parts[0] == clean_no:
-                                        return parts[1]
-                    return ""
+                    t = yf.Ticker(final_id)
+                    name = t.info.get('shortName') or t.info.get('longName')
+                    if name: return name
                 except:
-                    return ""
-
+                    pass
+                    
+                return ""
             # 執行抓取
             comp_name = get_tw_stock_name(base_id)
 
