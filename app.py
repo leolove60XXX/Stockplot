@@ -96,6 +96,7 @@ if st.session_state.submitted:
                     headers = {
                         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
                     }
+                    clean_no = stock_no.split('.')[0].strip()
                     url = f"https://www.twse.com.tw/zh/api/codeQuery?query={stock_no}"
                     response = requests.get(url, headers=headers, timeout=5)
                     if response.status_code == 200:
