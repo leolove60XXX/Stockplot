@@ -110,8 +110,9 @@ if st.session_state.submitted:
                 for url in urls:
                     try:
                         response = requests.get(url, headers=headers, timeout=10, verify=False)
+                        response.encoding = 'utf-8' # 強制編碼避免亂碼
                         if response.status_code == 200:
-                            response.encoding = 'utf-8' # 強制編碼避免亂碼
+                            
                             # 移除雙引號以確保 CSV 解析正確
                             content = response.text.replace('"', '') 
                             df = pd.read_csv(io.StringIO(content))
