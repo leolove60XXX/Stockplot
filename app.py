@@ -3,8 +3,6 @@ import yfinance as yf
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
-import requests
-import io
 from datetime import datetime, timedelta
 
 # --- 1. 狀態初始化與配置 ---
@@ -90,66 +88,16 @@ if st.session_state.submitted:
             st.error(f"❌ 找不到股票代號 '{base_id}'，請重新設定。")
             st.session_state.submitted = False
         else:
-            # --- C. 精準抓取證交所中文名稱 (修正版) ---
-            @st.cache_data(ttl=86400) # 每天自動更新一次
-            def load_full_tw_stock_mapping():
-                """
-                從 MOPS 下載上市(L)、上櫃(O)、興櫃(R)的所有公司基本資料 CSV
-                並建立 {代號: 簡稱} 的對照表
-                """
-                urls = [
-                    "https://mopsfin.twse.com.tw/opendata/t187ap03_L.csv", # 上市
-                    "https://mopsfin.twse.com.tw/opendata/t187ap03_O.csv", # 上櫃
-                    "https://mopsfin.twse.com.tw/opendata/t187ap03_R.csv"  # 興櫃
-                ]
-                mapping = {}
+            # --- 新增：獲取公司名稱 ---
+            try:
+                ticker_info = yf.Ticker(final_id).info
+                # 優先抓取 shortName (通常是中文簡稱)，沒有的話抓 longName
+                comp_name = ticker_info.get('shortName') or ticker_info.get('longName') or ""
+            except:
+                comp_name = ""
                 
-                for url in urls:
-                        try:
-                            response = requests.get(url, headers=headers, timeout=10)
-                            if response.status_code == 200:
-                                # 關鍵修正：處理可能的 BOM 與編碼，並強制移除雙引號
-                                content = response.text.replace('"', '') 
-                                df = pd.read_csv(io.StringIO(content))
-                                
-                                # 清洗標頭與內容
-                                df.columns = [c.strip() for c in df.columns]
-                                if '公司代號' in df.columns and '公司簡稱' in df.columns:
-                                    # 建立字典映射，確保代號是純數字字串
-                                    temp_dict = dict(zip(df['公司代號'].astype(str).str.strip(), df['公司簡稱'].astype(str).str.strip()))
-                                    mapping.update(temp_dict)
-                        except Exception as e:
-                            print(f"無法載入 {url}: {e}")
-                            continue
-                        
-                return mapping
-            
-            def get_tw_stock_name(base_id, final_id):
-                """
-                優先從 CSV 資料庫找中文名稱，找不到則用 yfinance 備援
-                """
-                clean_no = str(base_id).split('.')[0].strip()
-                
-                # 1. 從全台股 CSV 資料庫查找
-                tw_mapping = load_full_tw_stock_mapping()
-                if clean_no in tw_mapping:
-                    return tw_mapping[clean_no]
-                
-                # 2. 備援：yfinance 查找 (美股或新上市股)
-                try:
-                    t = yf.Ticker(final_id)
-                    name = t.info.get('shortName') or t.info.get('longName')
-                    if name: return name
-                except:
-                    pass
-                    
-                return ""
-            # 執行抓取
-            comp_name = get_tw_stock_name(base_id, final_id)
-
-            # 顯示標題
-            st.markdown(f"### 📊 目前分析標的: {base_id} {comp_name}", unsafe_allow_html=True)
-
+            # 顯示目前分析標的 (格式：2330 台積電)
+            st.markdown(f"### 📊 目前分析標的: {base_id} {comp_name}")
             
             # --- C. 核心計算區 ---
             df = df.reset_index()
@@ -213,4 +161,3 @@ if st.session_state.submitted:
 
 else:
     st.info("💡 請點開左上角選單 [ > ] 設定參數後按「開始計算」。")
-
