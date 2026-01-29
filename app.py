@@ -117,7 +117,7 @@ if st.session_state.submitted:
                                     if parts[0] == stock_no:
                                         return parts[1]
                     return ""
-        except Exception as e:
+                except Exception as e:
         # 發生錯誤時顯示在後台或回傳空白
         print(f"抓取名稱出錯: {e}")
         return ""
