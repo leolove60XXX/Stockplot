@@ -105,18 +105,20 @@ if st.session_state.submitted:
                 mapping = {}
                 
                 for url in urls:
-                    try:
-                        # 使用 requests 下載並處理編碼問題 (通常為 utf-8 或 cp950)
-                        response = requests.get(url, timeout=10)
-                        if response.status_code == 200:
-                            # 讀取 CSV，自動跳過可能出錯的行
-                            df = pd.read_csv(io.StringIO(response.text))
-                            # 確保欄位存在：公司代號, 公司簡稱
-                            if '公司代號' in df.columns and '公司簡稱' in df.columns:
-                                # 建立字典映射，代號轉成字串並去除空白
-                                temp_dict = dict(zip(df['公司代號'].astype(str).str.strip(), df['公司簡稱']))
-                                mapping.update(temp_dict)
-                    except Exception as e:
+                        try:
+                            response = requests.get(url, headers=headers, timeout=10)
+                            if response.status_code == 200:
+                                # 關鍵修正：處理可能的 BOM 與編碼，並強制移除雙引號
+                                content = response.text.replace('"', '') 
+                                df = pd.read_csv(io.StringIO(content))
+                                
+                                # 清洗標頭與內容
+                                df.columns = [c.strip() for c in df.columns]
+                                if '公司代號' in df.columns and '公司簡稱' in df.columns:
+                                    # 建立字典映射，確保代號是純數字字串
+                                    temp_dict = dict(zip(df['公司代號'].astype(str).str.strip(), df['公司簡稱'].astype(str).str.strip()))
+                                    mapping.update(temp_dict)
+                                    except Exception as e:
                         print(f"無法載入 {url}: {e}")
                         continue
                         
@@ -126,7 +128,7 @@ if st.session_state.submitted:
                 """
                 優先從 CSV 資料庫找中文名稱，找不到則用 yfinance 備援
                 """
-                clean_no = base_id.split('.')[0].strip()
+                clean_no = str(base_id).split('.')[0].strip()
                 
                 # 1. 從全台股 CSV 資料庫查找
                 tw_mapping = load_full_tw_stock_mapping()
