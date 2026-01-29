@@ -19,35 +19,7 @@ st.set_page_config(
 # --- 2. 標題與樣式優化 ---
 st.markdown(
     """
-   <style>
-    /* 1. 強制讓側邊欄與其內部容器允許溢出顯示 (不裁切彈窗) */
-    [data-testid="stSidebar"], 
-    [data-testid="stSidebarUserContent"],
-    [data-testid="stVerticalBlock"] {
-        overflow: visible !important;
-    }
-
-    /* 2. 增加側邊欄頂部間距，避免年份彈出時頂到瀏覽器邊緣 */
-    [data-testid="stSidebarUserContent"] {
-        padding-top: 53px !important;
-    }
-
-    /* 2A. 手機版特別修正 (針對 768px 以下螢幕) */
-    @media (max-width: 768px) {
-        [data-testid="stSidebarUserContent"] {
-            padding-top: 80px !important; /* 手機版多推一點，避免被手機狀態列遮住 */
-        }
-
-    /* 3. 調寬側邊欄，確保日曆元件有足夠寬度 */
-    [data-testid="stSidebar"] {
-        min-width: 350px !important;
-    }
-
-    /* 4. 確保日曆彈窗 (Popover) 的 z-index 極高 */
-    div[data-baseweb="popover"] {
-        z-index: 999999 !important;
-    }
-
+    <style>
     .main-title { font-size: 22px !important; font-weight: bold; margin-bottom: 5px; }
     </style>
     <div class="main-title">📈 樂活五線譜自動生成</div>
@@ -88,16 +60,8 @@ if st.session_state.submitted:
             st.error(f"❌ 找不到股票代號 '{base_id}'，請重新設定。")
             st.session_state.submitted = False
         else:
-            # --- 新增：獲取公司名稱 ---
-            try:
-                ticker_info = yf.Ticker(final_id).info
-                # 優先抓取 shortName (通常是中文簡稱)，沒有的話抓 longName
-                comp_name = ticker_info.get('shortName') or ticker_info.get('longName') or ""
-            except:
-                comp_name = ""
-                
-            # 顯示目前分析標的 (格式：2330 台積電)
-            st.markdown(f"### 📊 目前分析標的: {base_id} {comp_name}")
+            # 顯示目前分析標的
+            st.markdown(f"**📊 目前分析標的: {final_id}**")
             
             # --- C. 核心計算區 ---
             df = df.reset_index()
