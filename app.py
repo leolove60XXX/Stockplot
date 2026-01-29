@@ -121,7 +121,7 @@ if st.session_state.submitted:
                         
                 return mapping
             
-            def get_tw_stock_name(stock_no, final_id):
+            def get_tw_stock_name(base_id, final_id):
                 """
                 優先從 CSV 資料庫找中文名稱，找不到則用 yfinance 備援
                 """
@@ -142,7 +142,7 @@ if st.session_state.submitted:
                     
                 return ""
             # 執行抓取
-            comp_name = get_tw_stock_name(stock_no, final_id)
+            comp_name = get_tw_stock_name(base_id, final_id)
 
             # 顯示標題
             st.markdown(f"### 📊 目前分析標的: {base_id} <span style='color:#1E90FF'>{comp_name}</span>", unsafe_allow_html=True)
