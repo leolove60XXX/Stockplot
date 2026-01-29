@@ -125,7 +125,7 @@ if st.session_state.submitted:
             def get_tw_stock_name(base_id, final_id):
                 """
                 優先從 CSV 資料庫找中文名稱，找不到則用 yfinance 備援
-                ""
+                """
                 clean_no = base_id.split('.')[0].strip()
                 
                 # 1. 從全台股 CSV 資料庫查找
