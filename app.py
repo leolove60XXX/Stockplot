@@ -118,9 +118,9 @@ if st.session_state.submitted:
                                     # 建立字典映射，確保代號是純數字字串
                                     temp_dict = dict(zip(df['公司代號'].astype(str).str.strip(), df['公司簡稱'].astype(str).str.strip()))
                                     mapping.update(temp_dict)
-                                    except Exception as e:
-                        print(f"無法載入 {url}: {e}")
-                        continue
+                        except Exception as e:
+                            print(f"無法載入 {url}: {e}")
+                            continue
                         
                 return mapping
             
