@@ -116,9 +116,8 @@ if st.session_state.submitted:
             comp_name = get_tw_stock_name(base_id)
 
             # 顯示標題
-            # st.markdown(f"### 📊 目前分析標的: {base_id} <span style='color:#1E90FF'>{comp_name}</span>", unsafe_allow_html=True)
-            display_title = f"{base_id} {comp_name}" if comp_name else f"{base_id}"
-            st.markdown(f"### 📊 目前分析標的: <span style='color:#1E90FF'>{display_title}</span>", unsafe_allow_html=True)
+            st.markdown(f"### 📊 目前分析標的: {base_id} <span style='color:#1E90FF'>{comp_name}</span>", unsafe_allow_html=True)
+
             
             # --- C. 核心計算區 ---
             df = df.reset_index()
