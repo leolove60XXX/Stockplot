@@ -88,8 +88,16 @@ if st.session_state.submitted:
             st.error(f"❌ 找不到股票代號 '{base_id}'，請重新設定。")
             st.session_state.submitted = False
         else:
-            # 顯示目前分析標的
-            st.markdown(f"**📊 目前分析標的: {final_id}**")
+            # --- 新增：獲取公司名稱 ---
+            try:
+                ticker_info = yf.Ticker(final_id).info
+                # 優先抓取 shortName (通常是中文簡稱)，沒有的話抓 longName
+                comp_name = ticker_info.get('shortName') or ticker_info.get('longName') or ""
+            except:
+                comp_name = ""
+                
+            # 顯示目前分析標的 (格式：2330 台積電)
+            st.markdown(f"### 📊 目前分析標的: {base_id} {comp_name}")
             
             # --- C. 核心計算區 ---
             df = df.reset_index()
