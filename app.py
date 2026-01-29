@@ -88,13 +88,17 @@ if st.session_state.submitted:
             st.error(f"❌ 找不到股票代號 '{base_id}'，請重新設定。")
             st.session_state.submitted = False
         else:
-            # --- 新增：獲取公司名稱 ---
+            # --- 優化版：抓取公司名稱 ---
+            # 直接從 Ticker 物件獲取，並加入 try-except 防止程式崩潰
+            comp_name = ""
             try:
-                ticker_info = yf.Ticker(final_id).info
-                # 優先抓取 shortName (通常是中文簡稱)，沒有的話抓 longName
-                comp_name = ticker_info.get('shortName') or ticker_info.get('longName') or ""
+                t = yf.Ticker(final_id)
+                # 使用 fast_info 或 info，並設定備援
+                comp_name = t.info.get('shortName', '') 
+                if not comp_name:
+                    comp_name = t.info.get('longName', '')
             except:
-                comp_name = ""
+                comp_name = "" # 如果真的抓不到，就保持空白
                 
             # 顯示目前分析標的 (格式：2330 台積電)
             st.markdown(f"### 📊 目前分析標的: {base_id} {comp_name}")
