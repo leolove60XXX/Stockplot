@@ -88,17 +88,29 @@ if st.session_state.submitted:
             st.error(f"❌ 找不到股票代號 '{base_id}'，請重新設定。")
             st.session_state.submitted = False
         else:
-            # --- 優化版：抓取公司名稱 ---
-            # 直接從 Ticker 物件獲取，並加入 try-except 防止程式崩潰
-            comp_name = ""
-            try:
-                t = yf.Ticker(final_id)
-                # 使用 fast_info 或 info，並設定備援
-                comp_name = t.info.get('shortName', '') 
-                if not comp_name:
-                    comp_name = t.info.get('longName', '')
-            except:
-                comp_name = "" # 如果真的抓不到，就保持空白
+
+            # --- C. 獲取中文名稱邏輯 ---
+            def get_chinese_name(symbol, b_id):
+                # 這裡可以手動建立常用清單，確保 100% 正確
+                common_stocks = {
+                    "2330": "台積電", "2317": "鴻海", "2454": "聯發科", 
+                    "0050": "元大台灣50", "0056": "元大高股息", "2881": "富邦金"
+                }
+                if b_id in common_stocks:
+                    return common_stocks[b_id]
+                
+                try:
+                    ticker = yf.Ticker(symbol)
+                    # 嘗試抓取 shortName
+                    name = ticker.info.get('shortName', '')
+                    # 如果抓到的是英文或是空的，再嘗試 longName
+                    if not name or any(c.isalpha() for c in name[:3]): # 簡單判定是否為英文
+                         name = ticker.info.get('longName', name)
+                    return name
+                except:
+                    return ""
+
+            comp_name = get_chinese_name(final_id, base_id)
                 
             # 顯示目前分析標的 (格式：2330 台積電)
             st.markdown(f"### 📊 目前分析標的: {base_id} {comp_name}")
