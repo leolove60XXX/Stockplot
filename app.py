@@ -110,8 +110,8 @@ if st.session_state.submitted:
                 except:
                     return ""
 
-        # 執行抓取
-        comp_name = get_tw_stock_name(base_id)
+            # 執行抓取
+            comp_name = get_tw_stock_name(base_id)
 
             # 顯示標題
             st.markdown(f"### 📊 目前分析標的: {base_id} <span style='color:#1E90FF'>{comp_name}</span>", unsafe_allow_html=True)
