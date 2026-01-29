@@ -28,36 +28,6 @@ st.markdown(
     [data-testid="stVerticalBlock"] {
         overflow: visible !important;
     }
-import streamlit as st
-import yfinance as yf
-import pandas as pd
-import numpy as np
-import plotly.graph_objects as go
-import requests
-import io
-from datetime import datetime, timedelta
-
-# --- 1. 狀態初始化與配置 ---
-if "submitted" not in st.session_state:
-    st.session_state.submitted = False
-
-# 根據狀態決定側邊欄開關
-st.set_page_config(
-    page_title="樂活五線譜", 
-    layout="wide",
-    initial_sidebar_state="collapsed" if st.session_state.submitted else "expanded"
-)
-
-# --- 2. 標題與樣式優化 ---
-st.markdown(
-    """
-   <style>
-    /* 1. 強制讓側邊欄與其內部容器允許溢出顯示 (不裁切彈窗) */
-    [data-testid="stSidebar"], 
-    [data-testid="stSidebarUserContent"],
-    [data-testid="stVerticalBlock"] {
-        overflow: visible !important;
-    }
 
     /* 2. 增加側邊欄頂部間距，避免年份彈出時頂到瀏覽器邊緣 */
     [data-testid="stSidebarUserContent"] {
