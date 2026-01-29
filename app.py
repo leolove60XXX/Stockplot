@@ -101,11 +101,12 @@ if st.session_state.submitted:
                     response = requests.get(url, headers=headers, timeout=5)
                     if response.status_code == 200:
                         data = response.json()
-                        if data and "suggestions" in data and len(data["suggestions"]) > 0:
+                        if data and "suggestions" in data:
                             for item in data["suggestions"]:
                                 if "\t" in item:
                                     parts = item.split('\t')
-                                    if parts[0] == stock_no:
+                                    # 精確匹配代號
+                                    if parts[0] == clean_no:
                                         return parts[1]
                     return ""
                 except:
