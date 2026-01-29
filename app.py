@@ -99,18 +99,21 @@ if st.session_state.submitted:
                 if b_id in common_stocks:
                     return common_stocks[b_id]
                 
+# 2. 嘗試從 yfinance 抓取
                 try:
-                    ticker = yf.Ticker(symbol)
-                    # 嘗試抓取 shortName
-                    name = ticker.info.get('shortName', '')
-                    # 如果抓到的是英文或是空的，再嘗試 longName
-                    if not name or any(c.isalpha() for c in name[:3]): # 簡單判定是否為英文
-                         name = ticker.info.get('longName', name)
-                    return name
+                    t = yf.Ticker(symbol)
+                    # 依次嘗試多個可能的欄位
+                    name = t.info.get('shortName') or t.info.get('longName') or t.info.get('name')
+                    
+                    # 如果抓到的是 None 或空字串，嘗試從 fast_info 抓
+                    if not name:
+                        name = t.fast_info.get('commonName')
+                    
+                    return name if name else ""
                 except:
                     return ""
 
-            comp_name = get_chinese_name(final_id, base_id)
+            comp_name = get_robust_name(final_id, base_id)
                 
             # 顯示目前分析標的 (格式：2330 台積電)
             st.markdown(f"### 📊 目前分析標的: {base_id} {comp_name}")
