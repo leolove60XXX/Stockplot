@@ -99,8 +99,6 @@ if st.session_state.submitted:
             # 圖表佈局 (圖例置中平均分布)
             fig.update_layout(
                 xaxis_title=None, yaxis_title='價格',
-                # 放大縮小按鈕
-                xaxis_rangeslider_visible=False,
                 hovermode="x unified", template="plotly_white", height=450,
                 margin=dict(l=5, r=5, t=60, b=5),
                 legend=dict(
@@ -112,7 +110,7 @@ if st.session_state.submitted:
                 )
             )
 
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
             
             # --- E. 數據摘要 ---
             curr_p, mid_p = float(y[-1]), float(middle_line[-1])
