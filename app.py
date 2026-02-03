@@ -112,7 +112,7 @@ if st.session_state.submitted:
                 )
             )
 
-            st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
+            st.plotly_chart(fig, use_container_width=True)
             
             # --- E. 數據摘要 ---
             curr_p, mid_p = float(y[-1]), float(middle_line[-1])
