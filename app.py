@@ -65,6 +65,10 @@ if st.session_state.submitted:
             
             # --- C. 核心計算區 ---
             df = df.reset_index()
+            
+            # 【關鍵修復】剔除含有 NaN 的行，避免 np.polyfit 計算出 NaN
+            df = df.dropna()
+            
             y = df['Close'].values.squeeze()
             if y.ndim > 1: y = y[:, 0]
             
